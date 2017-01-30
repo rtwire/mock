@@ -1,0 +1,23 @@
+hash: b0500e5519e780e226a4c2fa86c7858fd695df3f57ed73832baba71298aad951
+updated: 2017-01-28T20:17:16.282786032Z
+imports:
+- name: github.com/btcsuite/btcd
+  version: ecd348b2a7c6003ae66bbbbe7573c22b75deb85b
+  subpackages:
+  - btcec
+  - chaincfg
+  - chaincfg/chainhash
+  - wire
+- name: github.com/btcsuite/btcutil
+  version: 86346b5a958c0cf94186b87855469ae991be501c
+  subpackages:
+  - base58
+- name: github.com/btcsuite/golangcrypto
+  version: 53f62d9b43e87a6c56975cf862af7edf33a8d0df
+  subpackages:
+  - ripemd160
+- name: github.com/gorilla/context
+  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
+- name: github.com/gorilla/mux
+  version: 392c28fe23e1c45ddba891b0320b3b5df220beea
+testImports: []
