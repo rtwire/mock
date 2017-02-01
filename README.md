@@ -8,7 +8,7 @@ mock is a mock implementation of the RTWire HTTP endpoints that allows local uni
 
 ## Installation
 
-### Linux/BSD/MacOS/POSIX - Build from source
+### Build From Source – (Linux Based Systems)
 
 - Install Go version 1.7 or newer according to the installation instructions here: [https://golang.org/doc/install](https://golang.org/doc/install).
 
@@ -29,6 +29,10 @@ $ glide install
 $ go install
 ```
 - mock will now be installed in ```$GOPATH/bin```.
+
+### Download Binaries
+
+- Instead of building from source you can also download a precompiled binary for the latest release found at [https://github.com/rtwire/mock/releases](https://github.com/rtwire/mock/releases).
 
 ## Running
 
