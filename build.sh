@@ -9,3 +9,7 @@ env GOOS=darwin GOARCH=amd64 go build -v -o darwin/amd64/mock $PACKAGE
 zip mock-windows-386.zip windows/386/mock.exe
 zip mock-linux-amd64.zip linux/amd64/mock
 zip mock-darwin-amd64.zip darwin/amd64/mock
+
+rm -r windows
+rm -r linux
+rm -r darwin
