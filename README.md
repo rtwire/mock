@@ -39,9 +39,50 @@ $ go install
 You can run mock as follows:
 
 ```bash
-$ ./mock -port [port]
+$ ./mock
 ```
 
-This will run a local webserver at the port you choose. The default port is 8085 if none is choosen. RTWire API endpoints accessable at http://localhost:[port]/v1/mainnet/. See our [documentation](https://rtwire.com/docs) for a description of available endpoints.
+This will run a local webserver that mimics RTWire's JSON endpoints at `http://localhost:8085/v1/mainnet/`. See our [documentation](https://rtwire.com/docs) for a description of available endpoints.
 
-Note that for unit/integration testing purposes there is an extra HTTP POST endpoint at http://localhost:[port]/v1/mainnet/addresses/[bitcoin address]. This can be used to simulate crediting an address and its respective account without having to send a transaction on the actual bitcoin network.
+- The default port of  8085 can be changed by using the `-port` argument.
+- The default authentication user name and password is `user` and `pass` respectively.
+- Unlike the live API there is an extra endpoint at `http://localhost:[port]/v1/mainnet/addresses/[bitcoin address]`. This can be used to credit a public key hash address owned by the system.
+
+## Example (Linux Based Systems)
+
+The following example is taken from our API [walkthrough](https://rtwire.com/docs/walkthrough).
+
+Start the mock service from the command line:
+```bash
+$ ./mock
+
+2017/02/01 18:00:00 RTWire service running at http://localhost:8085/v1/mainnet/.
+```
+
+Either make the mock service run in the background (Ctrl+Z and then type `bg` on MacOS) or open a new command line window.
+
+
+Create an account:
+```bash
+$ curl --user user:pass --header "Accept: application/json" --request POST --data "" http://localhost:8085/v1/mainnet/accounts/
+
+{"type":"accounts","payload":[{"id":8674665223082153552,"balance":0}]}
+```
+
+Create an address assoicated with the account:
+```bash
+curl --user user:pass --header "Accept: application/json" --request POST --data "" http://localhost:8085/v1/mainnet/accounts/8674665223082153552/addresses/
+
+{"type":"addresses","payload":[{"address":"1CXZFGn4jAdV7KTQvFL4FVSgSuCj2UECez"}]}
+```
+
+Send some funds to the address. (Note that this is a mock service specific endpoint. To fund a live account you would need to send a transaction to the address from a bitcoin wallet):
+```bash
+url --user user:pass --header "Content-Type: application/json" --header "Accept: application/json" --request POST --data '{"value": 2000}' http://localhost:8085/v1/mainnet/addresses/1CXZFGn4jAdV7KTQvFL4FVSgSuCj2UECez
+```
+
+Check that the funds have been sent to account `8674665223082153552`:
+```bash
+curl --user user:pass --header "Accept: application/json" --request GET --data '' http://localhost:8085/v1/mainnet/accounts/8674665223082153552
+{"type":"accounts","payload":[{"id":8674665223082153552,"balance":2000}]}
+```
