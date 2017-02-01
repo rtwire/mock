@@ -29,6 +29,11 @@ type transaction struct {
 	created time.Time
 }
 
+type fee struct {
+	feePerByte  int64
+	blockHeight int64
+}
+
 type service struct {
 	mu sync.RWMutex
 
@@ -361,6 +366,15 @@ func (s *service) Debit(txID, fromAccID int64,
 	delete(s.unusedTxIDs, txID)
 
 	return nil
+}
+
+func (s *service) Fees() []fee {
+	return []fee{
+		{
+			feePerByte:  100,
+			blockHeight: 451000,
+		},
+	}
 }
 
 var (
