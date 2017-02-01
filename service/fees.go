@@ -23,5 +23,5 @@ func (s *service) getFeesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	sendPayload(w, http.StatusCreated, "fees", "", payload)
+	sendPayload(w, http.StatusOK, "fees", "", payload)
 }
