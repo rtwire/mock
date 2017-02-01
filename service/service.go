@@ -145,6 +145,11 @@ func New(options ...option) *service {
 
 	s.initHandler()
 
+	// All client accounts begin with an account where service fees can be sent
+	// and deducted. Although this mock service doesn't implement a fees system
+	// now, it may do in the future.
+	s.CreateAccount()
+
 	for _, op := range options {
 		op(s)
 	}
