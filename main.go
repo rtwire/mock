@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -16,8 +17,9 @@ var (
 func main() {
 	flag.Parse()
 
-	addr := ":" + strconv.Itoa(*port)
+	url := fmt.Sprintf("http://localhost:%d/v1/mainnet/", *port)
+	log.Printf("RTWire service running at %s.", url)
 
-	log.Printf("Mock RTWire service running on port %d.", *port)
+	addr := ":" + strconv.Itoa(*port)
 	log.Fatal(http.ListenAndServe(addr, service.New()))
 }
