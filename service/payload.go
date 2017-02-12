@@ -13,7 +13,7 @@ type jsonMessage struct {
 
 func sendError(w http.ResponseWriter, code int, message string) {
 	resp := jsonMessage{
-		Type: "error",
+		Type: "errors",
 		Payload: []struct {
 			Message string `json:"message"`
 		}{
