@@ -13,10 +13,22 @@ import (
 func TestAccounts(t *testing.T) {
 	s := service.New()
 
-	r := httptest.NewRequest("POST", "/v1/mainnet/accounts/", nil)
+	// Check we have a fee account.
+	r := httptest.NewRequest("GET", "/v1/mainnet/accounts/labels/_fee/", nil)
 	r.SetBasicAuth("user", "pass")
 	r.Header.Add("Accept", "application/json")
 	w := httptest.NewRecorder()
+
+	s.ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected %v got %v", http.StatusOK, w.Code)
+	}
+
+	r = httptest.NewRequest("POST", "/v1/mainnet/accounts/", nil)
+	r.SetBasicAuth("user", "pass")
+	r.Header.Add("Accept", "application/json")
+	w = httptest.NewRecorder()
 
 	s.ServeHTTP(w, r)
 

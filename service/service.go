@@ -41,6 +41,7 @@ type service struct {
 
 	accounts          map[int64]account
 	orderedAccountIDs []int64
+	accountLabels     map[string]int64
 
 	addresses map[string]int64
 
@@ -128,7 +129,8 @@ func New(options ...option) *service {
 	s := &service{
 		params: &chaincfg.MainNetParams,
 
-		accounts: make(map[int64]account),
+		accounts:      make(map[int64]account),
+		accountLabels: make(map[string]int64),
 
 		addresses: make(map[string]int64),
 
@@ -145,10 +147,10 @@ func New(options ...option) *service {
 
 	s.initHandler()
 
-	// All client accounts begin with an account where service fees can be sent
-	// and deducted. Although this mock service doesn't implement a fees system
-	// now, it may do in the future.
-	s.CreateAccount()
+	// All client accounts begin with an account where service fees can be
+	// sent and deducted.
+	feeAcc := s.CreateAccount()
+	s.accountLabels["_fee"] = feeAcc.id
 
 	for _, op := range options {
 		op(s)
@@ -236,6 +238,14 @@ func (s *service) Account(id int64) (account, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	acc, exists := s.accounts[id]
+	return acc, exists
+}
+
+func (s *service) AccountByLabel(label string) (account, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	accID := s.accountLabels[label]
+	acc, exists := s.accounts[accID]
 	return acc, exists
 }
 

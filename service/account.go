@@ -74,6 +74,29 @@ func (s *service) getAccountsHandler(w http.ResponseWriter, r *http.Request) {
 	sendPayload(w, http.StatusOK, "accounts", "", accountsPayload)
 }
 
+func (s *service) getAccountByLabelHandler(w http.ResponseWriter,
+	r *http.Request) {
+
+	if !acceptHeaderFound(w, r) {
+		return
+	}
+
+	accLabel := mux.Vars(r)["account-label"]
+
+	acc, exists := s.AccountByLabel(accLabel)
+	if !exists {
+		errStr := fmt.Sprintf(
+			"account with label %v not found", accLabel)
+		http.Error(w, errStr, http.StatusNotFound)
+		return
+	}
+
+	sendPayload(w, http.StatusOK, "accounts", "",
+		[]accountPayload{
+			{acc.id, acc.balance},
+		})
+}
+
 func (s *service) getAccountHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !acceptHeaderFound(w, r) {

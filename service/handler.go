@@ -20,6 +20,8 @@ func (s *service) initHandler() {
 	accounts := chain.PathPrefix("/accounts").Subrouter()
 	accounts.Handle("/", mw.Handler(s.postAccountsHandler)).Methods("POST")
 	accounts.Handle("/", mw.Handler(s.getAccountsHandler)).Methods("GET")
+	accounts.Handle("/labels/{account-label:_?[0-9a-zA-Z]+}/",
+		mw.Handler(s.getAccountByLabelHandler)).Methods("GET")
 	accounts.Handle("/{account-id:[0-9]+}",
 		mw.Handler(s.getAccountHandler)).Methods("GET")
 	accounts.Handle("/{account-id:[0-9]+}/addresses/",
