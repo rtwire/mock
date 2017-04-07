@@ -145,8 +145,6 @@ func New(options ...option) *service {
 		pass: "pass",
 	}
 
-	s.initHandler()
-
 	// All client accounts begin with an account where service fees can be
 	// sent and deducted.
 	feeAcc := s.CreateAccount()
@@ -155,6 +153,9 @@ func New(options ...option) *service {
 	for _, op := range options {
 		op(s)
 	}
+
+	s.initHandler()
+
 	return s
 }
 
