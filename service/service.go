@@ -75,7 +75,7 @@ type option func(*service)
 // TestNet3 is an option that can be passed to New() in order to make the RTWire
 // mock service simulate being on the testnet3 network. If this option is not
 // passed the the mock service defaults to being on mainnet.
-func TestNet3() func(*service) {
+func TestNet3() option {
 	return func(s *service) {
 		s.params = &chaincfg.TestNet3Params
 	}
@@ -83,7 +83,7 @@ func TestNet3() func(*service) {
 
 // User is an option that can be passsed to New() to change the default user
 // name from 'user'.
-func User(user string) func(*service) {
+func User(user string) option {
 	return func(s *service) {
 		s.user = user
 	}
@@ -91,7 +91,7 @@ func User(user string) func(*service) {
 
 // Pass is an option that can be passed to New() to change the default password
 // from 'pass'.
-func Pass(pass string) func(*service) {
+func Pass(pass string) option {
 	return func(s *service) {
 		s.pass = pass
 	}
