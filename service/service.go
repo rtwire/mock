@@ -40,8 +40,8 @@ type transaction struct {
 
 	fromAccountID int64
 	toAccountID   int64
-	toAddress     string
-	value         int64
+
+	value int64
 
 	created time.Time
 }
@@ -121,18 +121,20 @@ func (c *chain) AccountTransactions(accID int64,
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	if next+limit > len(c.transactions) {
-		limit = len(c.transactions) - next
-	}
-	txns := make([]transaction, 0, limit)
-	for _, id := range c.orderedTransactionIDs[next : next+limit] {
-
+	txns := []transaction{}
+	for _, id := range c.orderedTransactionIDs {
 		tx := c.transactions[id]
 		if tx.fromAccountID == accID || tx.toAccountID == accID {
 			txns = append(txns, tx)
 		}
 	}
-	return txns
+	if next > len(txns) {
+		next = len(txns)
+	}
+	if next+limit > len(txns) {
+		limit = next
+	}
+	return txns[next : next+limit]
 }
 
 var errAccountNotFound = errors.New("account not found")
@@ -180,7 +182,7 @@ func (c *chain) AccountByLabel(label string) (account, bool) {
 	return acc, exists
 }
 
-func (c *chain) CreditAddress(address string, value int64) (int64, bool) {
+func (c *chain) Credit(address string, value int64) (int64, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -195,12 +197,11 @@ func (c *chain) CreditAddress(address string, value int64) (int64, bool) {
 
 	txID := c.nextID()
 	tx := transaction{
-		id:            txID,
-		ty:            "credit",
-		fromAccountID: accID,
-		toAddress:     address,
-		value:         value,
-		created:       time.Now(),
+		id:          txID,
+		ty:          "credit",
+		toAccountID: accID,
+		value:       value,
+		created:     time.Now(),
 	}
 	c.transactions[txID] = tx
 	c.orderedTransactionIDs = append(c.orderedTransactionIDs, txID)
@@ -313,7 +314,6 @@ func (c *chain) Debit(txID, fromAccID int64,
 		id:            txID,
 		ty:            "debit",
 		fromAccountID: fromAccID,
-		toAddress:     toAddr,
 		value:         value,
 		created:       time.Now(),
 	}

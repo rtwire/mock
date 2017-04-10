@@ -15,8 +15,8 @@ func TestTransations(t *testing.T) {
 	s := service.New()
 
 	// Create two accounts and give them balances.
-	var accIDs []int64
-	for i := 0; i < 2; i++ {
+	accIDs := make([]int64, 2)
+	for i := range accIDs {
 		r := httptest.NewRequest("POST", "/v1/mainnet/accounts/", nil)
 		r.SetBasicAuth("user", "pass")
 		r.Header.Add("Accept", "application/json")
@@ -41,7 +41,7 @@ func TestTransations(t *testing.T) {
 		}
 
 		accID := newAccRes.Payload[0].ID
-		accIDs = append(accIDs, accID)
+		accIDs[i] = accID
 
 		// Get an account address.
 		addrURL := fmt.Sprintf("/v1/mainnet/accounts/%d/addresses/", accID)
@@ -81,7 +81,6 @@ func TestTransations(t *testing.T) {
 		url := fmt.Sprintf("/v1/mainnet/addresses/%s", accAddr)
 		r = httptest.NewRequest("POST", url, &req)
 		r.SetBasicAuth("user", "pass")
-		r.Header.Add("Accept", "application/json")
 		r.Header.Add("Content-Type", "application/json")
 		w = httptest.NewRecorder()
 
@@ -170,4 +169,32 @@ func TestTransations(t *testing.T) {
 		t.Fatalf("expected %v got %v", http.StatusOK, w.Code)
 	}
 
+	// Get accIDs[0] transactions.
+	url = fmt.Sprintf("/v1/mainnet/accounts/%d/transactions/", accIDs[0])
+	r = httptest.NewRequest("GET", url, nil)
+	r.SetBasicAuth("user", "pass")
+	r.Header.Add("Accept", "application/json")
+	w = httptest.NewRecorder()
+
+	s.ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected %v got %v", http.StatusOK, w.Code)
+	}
+
+	txns := &struct {
+		Status  string
+		Payload []struct {
+			ID   int64
+			Type string
+		}
+	}{}
+
+	if err := json.NewDecoder(w.Body).Decode(txns); err != nil {
+		t.Fatal(err)
+	}
+
+	if len(txns.Payload) != 2 {
+		t.Fatal("incorrect number of transactions")
+	}
 }

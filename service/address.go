@@ -27,7 +27,7 @@ func (c *chain) postAddressHandler(w http.ResponseWriter, r *http.Request) {
 
 	addr := mux.Vars(r)["address"]
 
-	txID, exists := c.CreditAddress(addr, pl.Value)
+	txID, exists := c.Credit(addr, pl.Value)
 	if !exists {
 		http.Error(w, "address not found", http.StatusBadRequest)
 		return
