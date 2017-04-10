@@ -18,13 +18,13 @@ type accountPayload struct {
 	Balance int64 `json:"balance"`
 }
 
-func (s *service) postAccountsHandler(w http.ResponseWriter, r *http.Request) {
+func (c *chain) postAccountsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !acceptHeaderFound(w, r) {
 		return
 	}
 
-	acc := s.CreateAccount()
+	acc := c.CreateAccount()
 
 	sendPayload(w, http.StatusCreated, "accounts", "",
 		[]accountPayload{
@@ -32,7 +32,7 @@ func (s *service) postAccountsHandler(w http.ResponseWriter, r *http.Request) {
 		})
 }
 
-func (s *service) getAccountsHandler(w http.ResponseWriter, r *http.Request) {
+func (c *chain) getAccountsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !acceptHeaderFound(w, r) {
 		return
@@ -61,7 +61,7 @@ func (s *service) getAccountsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	accountsPayload := []accountPayload{}
-	for i, acc := range s.Accounts(limit, next) {
+	for i, acc := range c.Accounts(limit, next) {
 		if i < next {
 			continue
 		}
@@ -74,7 +74,7 @@ func (s *service) getAccountsHandler(w http.ResponseWriter, r *http.Request) {
 	sendPayload(w, http.StatusOK, "accounts", "", accountsPayload)
 }
 
-func (s *service) getAccountByLabelHandler(w http.ResponseWriter,
+func (c *chain) getAccountByLabelHandler(w http.ResponseWriter,
 	r *http.Request) {
 
 	if !acceptHeaderFound(w, r) {
@@ -83,7 +83,7 @@ func (s *service) getAccountByLabelHandler(w http.ResponseWriter,
 
 	accLabel := mux.Vars(r)["account-label"]
 
-	acc, exists := s.AccountByLabel(accLabel)
+	acc, exists := c.AccountByLabel(accLabel)
 	if !exists {
 		errStr := fmt.Sprintf(
 			"account with label %v not found", accLabel)
@@ -97,7 +97,7 @@ func (s *service) getAccountByLabelHandler(w http.ResponseWriter,
 		})
 }
 
-func (s *service) getAccountHandler(w http.ResponseWriter, r *http.Request) {
+func (c *chain) getAccountHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !acceptHeaderFound(w, r) {
 		return
@@ -110,7 +110,7 @@ func (s *service) getAccountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	acc, exists := s.Account(accID)
+	acc, exists := c.Account(accID)
 	if !exists {
 		errStr := fmt.Sprintf("account with ID %v not found", accID)
 		http.Error(w, errStr, http.StatusNotFound)
@@ -127,7 +127,7 @@ type addressPayload struct {
 	Address string `json:"address"`
 }
 
-func (s *service) postAccountAddresses(w http.ResponseWriter, r *http.Request) {
+func (c *chain) postAccountAddresses(w http.ResponseWriter, r *http.Request) {
 
 	if !acceptHeaderFound(w, r) {
 		return
@@ -140,7 +140,7 @@ func (s *service) postAccountAddresses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	addr, err := s.CreateAddress(accID)
+	addr, err := c.CreateAddress(accID)
 	if err == errAccountNotFound {
 		errStr := fmt.Sprintf("account ID %v not found", accID)
 		http.Error(w, errStr, http.StatusNotFound)

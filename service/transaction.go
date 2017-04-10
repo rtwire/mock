@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (s *service) postTransactionsHandler(w http.ResponseWriter,
+func (c *chain) postTransactionsHandler(w http.ResponseWriter,
 	r *http.Request) {
 
 	if !acceptHeaderFound(w, r) {
@@ -41,13 +41,13 @@ func (s *service) postTransactionsHandler(w http.ResponseWriter,
 	}, n.N)
 
 	for i := range idsPayload {
-		idsPayload[i].ID = s.CreateTransactionID()
+		idsPayload[i].ID = c.CreateTransactionID()
 	}
 
 	sendPayload(w, http.StatusCreated, "transactions", "", idsPayload)
 }
 
-func (s *service) putTransactionsHandler(w http.ResponseWriter,
+func (c *chain) putTransactionsHandler(w http.ResponseWriter,
 	r *http.Request) {
 
 	pl := struct {
@@ -83,14 +83,14 @@ func (s *service) putTransactionsHandler(w http.ResponseWriter,
 			sendError(w, http.StatusBadRequest, "invalid toAccountID")
 			return
 		}
-		err := s.Transfer(pl.ID, pl.FromAccountID, pl.ToAccountID, pl.Value)
+		err := c.Transfer(pl.ID, pl.FromAccountID, pl.ToAccountID, pl.Value)
 		if err != nil {
 			sendError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 	} else {
 
-		toAddr, err := btcutil.DecodeAddress(pl.ToAddress, s.params)
+		toAddr, err := btcutil.DecodeAddress(pl.ToAddress, c.params())
 		if err != nil {
 			sendError(w, http.StatusBadRequest, "invalid toAddress")
 			return
@@ -100,13 +100,13 @@ func (s *service) putTransactionsHandler(w http.ResponseWriter,
 				"toAddress not public key hash")
 			return
 		}
-		if !toAddr.IsForNet(s.params) {
+		if !toAddr.IsForNet(c.params()) {
 			sendError(w, http.StatusBadRequest,
 				"toAddress for wrong chain")
 			return
 		}
 
-		if err := s.Debit(pl.ID,
+		if err := c.Debit(pl.ID,
 			pl.FromAccountID, pl.ToAddress, pl.Value); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -137,7 +137,7 @@ type transactionPayload struct {
 	TxIndex  int64    `json:"txIndex,omitempty"`
 }
 
-func (s *service) getTransactionHandler(w http.ResponseWriter,
+func (c *chain) getTransactionHandler(w http.ResponseWriter,
 	r *http.Request) {
 
 	txIDValue := mux.Vars(r)["transaction-id"]
@@ -147,7 +147,7 @@ func (s *service) getTransactionHandler(w http.ResponseWriter,
 		return
 	}
 
-	tx, exists := s.Transaction(txID)
+	tx, exists := c.Transaction(txID)
 	if !exists {
 		errStr := fmt.Sprintf("transaction with ID %v not found", txID)
 		http.Error(w, errStr, http.StatusNotFound)
@@ -169,7 +169,7 @@ func (s *service) getTransactionHandler(w http.ResponseWriter,
 		})
 }
 
-func (s *service) getAccountTransactions(w http.ResponseWriter,
+func (c *chain) getAccountTransactions(w http.ResponseWriter,
 	r *http.Request) {
 
 	if !acceptHeaderFound(w, r) {
@@ -211,7 +211,7 @@ func (s *service) getAccountTransactions(w http.ResponseWriter,
 	}
 
 	payload := []transactionPayload{}
-	for i, tx := range s.AccountTransactions(accID, limit, next) {
+	for i, tx := range c.AccountTransactions(accID, limit, next) {
 		if i < next {
 			continue
 		}

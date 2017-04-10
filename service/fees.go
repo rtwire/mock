@@ -7,13 +7,13 @@ type feePayload struct {
 	BlockHeight int64 `json:"blockHeight"`
 }
 
-func (s *service) getFeesHandler(w http.ResponseWriter, r *http.Request) {
+func (c *chain) getFeesHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !acceptHeaderFound(w, r) {
 		return
 	}
 
-	fees := s.Fees()
+	fees := c.Fees()
 
 	payload := make([]feePayload, len(fees))
 	for i, fee := range fees {

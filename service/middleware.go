@@ -12,7 +12,7 @@ func (mw middleware) Handler(handler http.HandlerFunc) http.Handler {
 	return h
 }
 
-func (s *service) basicAuthMiddleware() func(http.Handler) http.Handler {
+func (s *chain) basicAuthMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user, pass, exists := r.BasicAuth()

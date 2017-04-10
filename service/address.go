@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (s *service) postAddressHandler(w http.ResponseWriter, r *http.Request) {
+func (c *chain) postAddressHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !contentTypeHeaderFound(w, r) {
 		return
@@ -27,21 +27,21 @@ func (s *service) postAddressHandler(w http.ResponseWriter, r *http.Request) {
 
 	addr := mux.Vars(r)["address"]
 
-	txID, exists := s.CreditAddress(addr, pl.Value)
+	txID, exists := c.CreditAddress(addr, pl.Value)
 	if !exists {
 		http.Error(w, "address not found", http.StatusBadRequest)
 		return
 	}
 
-	if err := s.sendHookCreditEvent(txID); err != nil {
+	if err := c.sendHookCreditEvent(txID); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-func (s *service) sendHookCreditEvent(txID int64) error {
+func (c *chain) sendHookCreditEvent(txID int64) error {
 
-	tx, exists := s.Transaction(txID)
+	tx, exists := c.Transaction(txID)
 	if !exists {
 		return errors.New("transaction does not exist")
 	}
@@ -61,7 +61,7 @@ func (s *service) sendHookCreditEvent(txID int64) error {
 		return err
 	}
 
-	for _, url := range s.Hooks() {
+	for _, url := range c.Hooks() {
 		go func(hook string) {
 			res, err := http.Post(url, "application/json", &body)
 			if err != nil {

@@ -21,7 +21,7 @@ var (
 	}
 )
 
-func (s *service) postHookHandler(w http.ResponseWriter, r *http.Request) {
+func (c *chain) postHookHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !contentTypeHeaderFound(w, r) {
 		return
@@ -47,7 +47,7 @@ func (s *service) postHookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(s.hooks) >= maxHooks {
+	if len(c.hooks) >= maxHooks {
 		http.Error(w, "max hooks reached", http.StatusBadRequest)
 		return
 	}
@@ -62,7 +62,7 @@ func (s *service) postHookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.CreateHook(pl.URL); err == errHookExists {
+	if err := c.CreateHook(pl.URL); err == errHookExists {
 		sendError(w, http.StatusBadRequest, "hook exists")
 		return
 	} else if err != nil {
@@ -73,11 +73,11 @@ func (s *service) postHookHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (s *service) getHooksHandler(w http.ResponseWriter, r *http.Request) {
+func (c *chain) getHooksHandler(w http.ResponseWriter, r *http.Request) {
 	if !acceptHeaderFound(w, r) {
 		return
 	}
-	hooks := s.Hooks()
+	hooks := c.Hooks()
 	pl := make([]struct {
 		URL string `json:"url"`
 	}, len(hooks))
@@ -91,7 +91,7 @@ func (s *service) getHooksHandler(w http.ResponseWriter, r *http.Request) {
 	sendPayload(w, http.StatusOK, "hooks", "", pl)
 }
 
-func (s *service) deleteHookHandler(w http.ResponseWriter, r *http.Request) {
+func (c *chain) deleteHookHandler(w http.ResponseWriter, r *http.Request) {
 
 	encodedURL := mux.Vars(r)["url"]
 	if encodedURL == "" {
@@ -105,5 +105,5 @@ func (s *service) deleteHookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	url := string(urlBytes)
-	s.DeleteHook(url)
+	c.DeleteHook(url)
 }
