@@ -5,21 +5,19 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/rtwire/mock/service"
 )
 
 var (
-	port = flag.Int("port", 8085, "service port number")
+	addr = flag.String("addr", ":8085", "service address")
 )
 
 func main() {
 	flag.Parse()
 
-	url := fmt.Sprintf("http://localhost:%d/v1/mainnet/", *port)
+	url := fmt.Sprintf("http://%s/v1/mainnet/", *addr)
 	log.Printf("RTWire service running at %s.", url)
 
-	addr := ":" + strconv.Itoa(*port)
-	log.Fatal(http.ListenAndServe(addr, service.New()))
+	log.Fatal(http.ListenAndServe(*addr, service.New()))
 }
