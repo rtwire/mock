@@ -221,8 +221,17 @@ func (c *chain) Transaction(id int64) (transaction, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	tx, exists := c.transactions[id]
-	return tx, exists
+	if tx, exists := c.transactions[id]; exists {
+		return tx, true
+	}
+
+	if _, exists := c.unusedTxIDs[id]; exists {
+		return transaction{
+			id: id,
+		}, true
+
+	}
+	return transaction{}, false
 }
 
 func (c *chain) Transfer(txID, fromAccID, toAccID, value int64) error {

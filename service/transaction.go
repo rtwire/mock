@@ -149,8 +149,7 @@ func (c *chain) getTransactionHandler(w http.ResponseWriter,
 
 	tx, exists := c.Transaction(txID)
 	if !exists {
-		errStr := fmt.Sprintf("transaction with ID %v not found", txID)
-		http.Error(w, errStr, http.StatusNotFound)
+		http.Error(w, "transaction not found", http.StatusNotFound)
 		return
 	}
 
