@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 PACKAGE=github.com/rtwire/mock
 
 env GOOS=windows GOARCH=386 go build -v -o windows/386/mock.exe $PACKAGE 
